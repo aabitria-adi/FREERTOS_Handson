@@ -1,0 +1,10 @@
+# Eclipse
+[Rr]elease
+[Dd]ebug
+Debug.launch
+*.launch
+.settings
+.cproject
+.mxproject
+.project
+*.ioc
