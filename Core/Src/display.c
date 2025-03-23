@@ -63,7 +63,7 @@ void vDisplaySetNum (uint8_t ucNum)
 
 void vDisplayClear (void)
 {
-	GPIOA->ODR = 0;
+	GPIOA->ODR = 0x3F;
 
 	return;
 }
