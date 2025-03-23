@@ -9,16 +9,14 @@
 #include "system_common.h"
 #include <stdio.h>
 
-struct SemaGroup
-{
-	SemaphoreHandle_t xMutex1;
-	SemaphoreHandle_t xMutex2;
-};
+#define NUM_TASKS      (3)
 
-struct SemaGroup xSems = {0};
+static SemaphoreHandle_t xCS[NUM_TASKS];
 
-void vDisplay (void *pvParams);
-void vCounter (void *pvParams);
+TaskHandle_t xTask[NUM_TASKS];
+
+static void vDine (void *parameters);
+//static void vTask2Handler (void *parameters);
 
 void prvHwInit (void)
 {
@@ -34,21 +32,27 @@ void prvHwInit (void)
 
 int main(void)
 {
-    TaskHandle_t TaskDisplay = NULL;
-    BaseType_t xResult;
+	char ucTaskName[20];
 
-    prvHwInit();
+	prvHwInit();
 
-    printf("FreeRTOS Hands-on Example Application.\n");
+	printf("FreeRTOS Hands-on Example Application.\n");
 
-    xSems.xMutex1 = xSemaphoreCreateMutex();
-    xSems.xMutex2 = xSemaphoreCreateMutex();
-    configASSERT((xSems.xMutex1 != NULL) && (xSems.xMutex2 != NULL));
+	for (int i = 0; i < NUM_TASKS; i++)
+	{
+		xCS[i] = xSemaphoreCreateBinary();
 
-    xResult = xTaskCreate(vDisplay, "DisplayTask", configMINIMAL_STACK_SIZE, (void *)&xSems, 2, &TaskDisplay);
-    configASSERT(xResult == pdPASS);
+		xSemaphoreGive(xCS[i]);
+	}
 
-    vTaskStartScheduler();
+	for (int i = 0; i < NUM_TASKS; i++)
+	{
+		sprintf(ucTaskName, "Task%i", i);
+
+		xTaskCreate(vDine, ucTaskName, 256, (void *)i, 2, &xTask[i]);
+	}
+
+	vTaskStartScheduler();
 
     while (1)
     {
@@ -56,45 +60,31 @@ int main(void)
     }
 }
 
-void vDisplay (void *pvParams)
+static void vDine (void *parameters)
 {
-	TaskHandle_t TaskCounter = NULL;
-	BaseType_t xResult;
-	struct SemaGroup *pxSems = (struct SemaGroup *)pvParams;
+	int lNum = (int)parameters;
 
 	while(1)
 	{
-		xSemaphoreTake(pxSems->xMutex1, portMAX_DELAY);
+		/* Take left chopstick */
+		xSemaphoreTake(xCS[lNum], portMAX_DELAY);
 
-		xResult = xTaskCreate(vCounter, "CounterTask", configMINIMAL_STACK_SIZE, (void *)pxSems, 5, &TaskCounter);
-		configASSERT(xResult == pdPASS);
+		/* Do work here */
+		vDisplaySetNum(lNum);
 
-		xSemaphoreTake(pxSems->xMutex2, portMAX_DELAY);
+		vTaskDelay(10*portTICK_PERIOD_MS);
 
-		/* Just make a change in the display */
-		vDisplaySetNum(8);
+		/* Take right chopstick */
+		xSemaphoreTake(xCS[(lNum + 1) % NUM_TASKS], portMAX_DELAY);
 
-		xSemaphoreGive(pxSems->xMutex1);
+		/* Do work here */
+		vDisplaySetNum(lNum + NUM_TASKS);
 
-		vTaskDelay(100);
+		vTaskDelay(10*portTICK_PERIOD_MS);
+
+		xSemaphoreGive(xCS[lNum]);
+
+		xSemaphoreGive(xCS[(lNum + 1) % NUM_TASKS]);
 	}
 }
 
-void vCounter (void *pvParams)
-{
-	struct SemaGroup *pxSems = (struct SemaGroup *)pvParams;
-
-	while(1)
-	{
-		xSemaphoreTake(pxSems->xMutex2, portMAX_DELAY);
-
-		xSemaphoreTake(pxSems->xMutex1, portMAX_DELAY);
-
-		/* Just update the display so it can say it's alive */
-		vDisplaySetNum(1);
-
-		xSemaphoreGive(pxSems->xMutex2);
-
-		vTaskDelay(100);
-	}
-}
