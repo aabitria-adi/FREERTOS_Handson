@@ -63,7 +63,7 @@ extern const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI;
 **********************************************************************
 */
 // The application name to be displayed in SystemViewer
-#define SYSVIEW_APP_NAME        "FreeRTOS SysView Example"
+#define SYSVIEW_APP_NAME        "FreeRTOS DP Deadlock Example"
 
 // The target device name
 #define SYSVIEW_DEVICE_NAME     "STM32 Blue Pill"
