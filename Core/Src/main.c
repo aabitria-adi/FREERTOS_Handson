@@ -10,20 +10,20 @@
 
 void prvHwInit (void)
 {
-	HAL_Init();
+    HAL_Init();
 
-	/* Configure the system clock */
-	SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-	/* Initialize all configured peripherals */
-	MX_GPIO_Init();
-	MX_USART1_UART_Init();
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_USART1_UART_Init();
 }
 
 int main(void)
 {
 
-	prvHwInit();
+    prvHwInit();
 
     printf("FreeRTOS Hands-on Example Application.\n");
 
