@@ -1,6 +1,8 @@
 #include "system_common.h"
 #include "main.h"
 
+
+TIM_HandleTypeDef        htim3;
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
@@ -48,19 +50,36 @@ void SystemClock_Config(void)
   }
 }
 
-/**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM4 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void TIM3_Init(void)
 {
-  if (htim->Instance == TIM4)
-  {
-    HAL_IncTick();
-  }
+	__HAL_RCC_TIM3_CLK_ENABLE();
+
+    HAL_NVIC_SetPriority(TIM3_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(TIM3_IRQn);
+
+	htim3.Instance = TIM3;
+
+	/* Initialize TIM3 peripheral as follow:
+	* Period = [(TIM4CLK/1000) - 1]. to have a (1/1000) s time base.
+	* Prescaler = (uwTimclock/1000000 - 1) to have a 1MHz counter clock.
+	* ClockDivision = 0
+	* Counter direction = Up
+	*/
+	htim3.Init.Period = 36000U - 1U;
+	htim3.Init.Prescaler = 2000 - 1;
+	htim3.Init.ClockDivision = 0;
+	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
+	if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
 }
 
+void TIM3_Start(void)
+{
+	/* Start the TIM time Base generation in interrupt mode */
+	HAL_TIM_Base_Start_IT(&htim3);
+}
