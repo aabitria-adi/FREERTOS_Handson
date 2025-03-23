@@ -271,7 +271,7 @@ void vPortEndScheduler( void ) PRIVILEGED_FUNCTION;
     BaseType_t xPortIsAuthorizedToAccessKernelObject( int32_t lInternalIndexOfKernelObject ) PRIVILEGED_FUNCTION;
 
 #endif
-
+void vInitPrioGroupValue(void);
 /* *INDENT-OFF* */
 #ifdef __cplusplus
     }

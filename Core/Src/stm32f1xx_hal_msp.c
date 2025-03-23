@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 /* USER CODE BEGIN Includes */
+#include "FreeRTOS.h"
 
 /* USER CODE END Includes */
 
@@ -77,7 +78,7 @@ void HAL_MspInit(void)
   __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
   /* USER CODE BEGIN MspInit 1 */
-
+  vInitPrioGroupValue();
   /* USER CODE END MspInit 1 */
 }
 
