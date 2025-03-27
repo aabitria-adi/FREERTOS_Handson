@@ -11,6 +11,8 @@
 
 #define DWT_CTRL       (*(volatile uint32_t *)0xE0001000)
 
+extern  void SEGGER_UART_init(uint32_t);
+
 static void vTask1Handler (void *parameters);
 static void vTask2Handler (void *parameters);
 
@@ -33,12 +35,14 @@ int main(void)
 
 	prvHwInit();
 
-	printf("FreeRTOS Hands-on Example Application.\n");
+	//printf("FreeRTOS Hands-on Example Application.\n");
 
 	DWT_CTRL |= (1 << 0);
 
+	SEGGER_UART_init(576000);
+
 	SEGGER_SYSVIEW_Conf();
-	SEGGER_SYSVIEW_Start();
+	//SEGGER_SYSVIEW_Start();
 
 	xStatus = xTaskCreate(vTask1Handler, "Task-1", 200, "Hello world from Taks-1", 2, &xTask1);
 	configASSERT(xStatus == pdPASS);
