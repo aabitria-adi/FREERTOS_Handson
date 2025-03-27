@@ -78,10 +78,10 @@ SEGGER_ASM_SRCS := \
 SEGGER_SRCS := \
 	SEGGER_SYSVIEW_Config_FreeRTOS.c \
 	SEGGER_SYSVIEW_FreeRTOS.c \
-	SEGGER_RTT_Syscalls_GCC.c \
 	SEGGER_RTT_printf.c \
 	SEGGER_RTT.c \
-	SEGGER_SYSVIEW.c
+	SEGGER_SYSVIEW.c \
+	#SEGGER_RTT_Syscalls_GCC.c
 
 ASM_DEFS:=-DDEBUG 
 C_DEFS:=-DDEBUG \
@@ -98,7 +98,7 @@ C_SRCS:=$(CORE_SRCS) \
 		$(FREERTOS_SRCS) \
 		$(SEGGER_SRCS)
 
-GNU_TOOLS_DIR := /usr
+GNU_TOOLS_DIR := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi/14.2 rel1"
 
 CC    := $(GNU_TOOLS_DIR)/bin/arm-none-eabi-gcc
 AS    := $(GNU_TOOLS_DIR)/bin/arm-none-eabi-gcc
@@ -158,5 +158,8 @@ $(BIN_DIR)/%.o : %.s
 $(BIN_DIR)/%.o : %.S
 	@echo AS $(notdir $<)
 	$(AS) $(ASFLAGS) $< -o $@
+
+clean:
+	@rm -Rf $(BIN_DIR)
 
 
